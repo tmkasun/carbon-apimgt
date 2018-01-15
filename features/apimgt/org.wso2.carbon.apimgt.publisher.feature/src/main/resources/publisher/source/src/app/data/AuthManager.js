@@ -31,42 +31,35 @@ class AuthManager {
     }
 
     static refreshTokenOnExpire() {
-        let timestampSkew = 100;
-        let currentTimestamp = Math.floor(Date.now() / 1000);
-        let tokenTimestamp = localStorage.getItem("expiresIn");
-        let rememberMe = (localStorage.getItem("rememberMe") === 'true');
-        if (rememberMe && (tokenTimestamp - currentTimestamp < timestampSkew)) {
-            let bearerToken = "Bearer " + Utils.getCookie("WSO2_AM_REFRESH_TOKEN_1");
-            let loginPromise = authManager.refresh(bearerToken);
-            loginPromise.then(function (data, status, xhr) {
-                authManager.setUser(true);
-                let expiresIn = data.validityPeriod + Math.floor(Date.now() / 1000);
-                window.localStorage.setItem("expiresIn", expiresIn);
-            });
-            loginPromise.error(
-                function (error) {
-                    let error_data = JSON.parse(error.responseText);
-                    let message = "Error while refreshing token" + "<br/> You will be redirect to the login page ...";
-                    noty({
-                        text: message,
-                        type: 'error',
-                        dismissQueue: true,
-                        modal: true,
-                        progressBar: true,
-                        timeout: 5000,
-                        layout: 'top',
-                        theme: 'relax',
-                        maxVisible: 10,
-                        callback: {
-                            afterClose: function () {
-                                window.location = loginPageUri;
-                            },
-                        }
-                    });
+        let loginPromise = AuthManager.refresh();
+        loginPromise.then(data => {
+            authManager.setUser(true);
+            let expiresIn = data.validityPeriod + Math.floor(Date.now() / 1000);
+            window.localStorage.setItem("expiresIn", expiresIn);
+        });
+        loginPromise.catch(
+            function (error) {
+                let error_data = JSON.parse(error.responseText);
+                let message = "Error while refreshing token" + "<br/> You will be redirect to the login page ...";
+                noty({
+                    text: message,
+                    type: 'error',
+                    dismissQueue: true,
+                    modal: true,
+                    progressBar: true,
+                    timeout: 5000,
+                    layout: 'top',
+                    theme: 'relax',
+                    maxVisible: 10,
+                    callback: {
+                        afterClose: function () {
+                            window.location = loginPageUri;
+                        },
+                    }
+                });
 
-                }
-            );
-        }
+            }
+        );
     }
 
     /**
@@ -108,20 +101,14 @@ class AuthManager {
      * @returns {User | null} Is any user has logged in or not
      * @param {boolean} readFromLocalStorage: read from local-storage
      */
-    static getUser(readFromLocalStorage) {
-        if (!readFromLocalStorage && AuthManager._user) {
-            return AuthManager._user;
-        }
-
+    static getUser() {
         const userData = localStorage.getItem(`${User.CONST.LOCALSTORAGE_USER}_${Utils.getEnvironment().label}`);
-        const partialToken = Utils.getCookie(User.CONST.WSO2_AM_TOKEN_1);
+        const environmentName = "_" + Utils.getEnvironment().label;
+        const partialToken = Utils.getCookie(User.CONST.WSO2_AM_TOKEN_1 + environmentName);
         if (!(userData && partialToken)) {
             return null;
         }
-
-        //Update user in memory.
-        AuthManager._user = User.fromJson(JSON.parse(userData));
-        return AuthManager._user;
+        return User.fromJson(JSON.parse(userData));
     }
 
     /**
@@ -133,11 +120,10 @@ class AuthManager {
         if (!user instanceof User) {
             throw new Error("Invalid user object");
         }
-
         if (user) {
-            localStorage.setItem(`${User.CONST.LOCALSTORAGE_USER}_${Utils.getEnvironment().label}`, JSON.stringify(user.toJson()));
+            localStorage.setItem(`${User.CONST.LOCALSTORAGE_USER}_${Utils.getEnvironment().label}`,
+                JSON.stringify(user.toJson()));
         }
-        AuthManager._user = user;
     }
 
     static hasScopes(resourcePath, resourceMethod) {
@@ -166,8 +152,8 @@ class AuthManager {
             password: password,
             grant_type: 'password',
             validity_period: -1,
-            scopes: 'apim:api_view apim:api_create apim:api_publish apim:tier_view apim:tier_manage '
-            + 'apim:subscription_view apim:subscription_block apim:subscribe apim:external_services_discover'
+            scopes: AuthManager.CONST.USER_SCOPES,
+            remember_me: true // By default always remember user session
         };
         let promised_response = axios(Utils.getLoginTokenPath(environment), {
             method: "POST",
@@ -184,8 +170,10 @@ class AuthManager {
             const WSO2_AM_TOKEN_1 = response.data.partialToken;
             const user = new User(Utils.getEnvironment().label, response.data.authUser, response.data.idToken);
             user.setPartialToken(WSO2_AM_TOKEN_1, validityPeriod, Utils.CONST.CONTEXT_PATH);
+            user.setExpiryTime(validityPeriod);
             user.scopes = response.data.scopes.split(" ");
             AuthManager.setUser(user);
+            this.setupAutoRefresh();
         }).catch(error => {
             console.error("Authentication Error:\n", error);
             Utils.setEnvironment(previous_environment);
@@ -213,18 +201,29 @@ class AuthManager {
         });
     }
 
-    refresh(authzHeader) {
+    setupAutoRefresh() {
+        const user = AuthManager.getUser();
+        const bufferTime = 1000 * 10; // Give 10 sec buffer time before token expire, considering the network delays and ect.
+        let triggerIn = Utils.timeDifference(user.getExpiryTime() - bufferTime);
+        if (user) {
+            setTimeout(AuthManager.refreshTokenOnExpire, triggerIn * 1000);
+        } else {
+            throw new Error("No user exist for current session! Needs to login before setting up refresh");
+        }
+    }
+
+    static refresh() {
+        const authHeader = "Bearer " + AuthManager.getUser().getPartialToken();
         let params = {
             grant_type: 'refresh_token',
-            validity_period: '3600',
-            scopes: 'apim:api_view apim:api_create apim:api_publish apim:tier_view apim:tier_manage' +
-            ' apim:subscription_view apim:subscription_block apim:subscribe apim:external_services_discover'
+            validity_period: -1,
+            scopes: AuthManager.CONST.USER_SCOPES
         };
         let referrer = (document.referrer.indexOf("https") !== -1) ? document.referrer : null;
-        let url = Utils.CONST.CONTEXT_PATH + '/auth/apis/login/token';
+        let url = '/login/token/' + Utils.CONST.CONTEXT_PATH;
         /* TODO: Fetch this from configs ~tmkb*/
         let headers = {
-            'Authorization': authzHeader,
+            'Authorization': authHeader,
             'Accept': 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
             'X-Alt-Referer': referrer
@@ -234,10 +233,9 @@ class AuthManager {
 
 }
 
-/**
- * Current User
- * @type {object} User Object
- * @private
- */
-AuthManager._user = undefined;
+// TODO: derive this from swagger definitions ~tmkb
+AuthManager.CONST = {
+    USER_SCOPES: "apim:api_view apim:api_create apim:api_publish apim:tier_view apim:tier_manage " +
+    "apim:subscription_view apim:subscription_block apim:subscribe apim:external_services_discover"
+};
 export default AuthManager;
