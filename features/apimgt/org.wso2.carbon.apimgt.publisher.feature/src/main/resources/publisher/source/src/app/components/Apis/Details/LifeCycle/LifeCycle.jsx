@@ -26,7 +26,6 @@ import ConfigManager from 'AppData/ConfigManager';
 import LifeCycleUpdate from './LifeCycleUpdate';
 import { Progress } from 'AppComponents/Shared';
 import LifeCycleHistory from './LifeCycleHistory';
-import ResourceNotFound from '../../../Base/Errors/ResourceNotFound';
 
 /**
  *

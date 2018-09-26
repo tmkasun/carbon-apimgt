@@ -37,7 +37,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 
-import ResourceNotFound from '../../../Base/Errors/ResourceNotFound';
+import ResourceNotFound from 'AppComponents/Base/Errors/ResourceNotFound';
 import Api from 'AppData/api';
 import Resource from './Resource';
 import { Progress } from 'AppComponents/Shared';

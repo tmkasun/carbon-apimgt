@@ -16,16 +16,15 @@
  * under the License.
  */
 import React from 'react';
-
 import { Route, Switch } from 'react-router-dom';
+import PageContainer from 'AppComponents/Base/container/';
+
 import ApiCreateEndpoint from './Endpoint/ApiCreateEndpoint';
 import ApiCreateWebsocket from './Websocket/ApiCreateWebsocket';
 import ApiCreateSwagger from './Swagger/ApiCreateSwagger';
 import ApiCreateWSDL from './WSDL/ApiCreateWSDL';
-
 import APICreateNavBar from './Components/APICreateNavBar';
 import APICreateTopMenu from './Components/APICreateTopMenu';
-import PageContainer from '../../Base/container/';
 
 const ApiCreate = () => {
     return (

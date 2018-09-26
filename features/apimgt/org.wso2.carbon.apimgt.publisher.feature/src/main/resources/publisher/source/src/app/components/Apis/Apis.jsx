@@ -18,11 +18,11 @@
 
 import React from 'react';
 import { Route, Switch } from 'react-router-dom';
+import { PageNotFound } from 'AppComponents/Base/Errors';
 
 import Listing from './Listing/Listing';
 import Details from './Details';
 import ApiCreate from './Create/ApiCreate';
-import { PageNotFound } from '../Base/Errors';
 
 const Apis = () => {
     return (

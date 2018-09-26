@@ -3,7 +3,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Utils from 'AppData/Utils';
 
-import { PageNotFound } from '../../../Base/Errors/';
+import { PageNotFound } from 'AppComponents/Base/Errors/';
 import EnvironmentOverview from '../EnvironmentOverview/EnvironmentOverview';
 // import PermissionFormWrapper from '../Permissions/Permission';
 

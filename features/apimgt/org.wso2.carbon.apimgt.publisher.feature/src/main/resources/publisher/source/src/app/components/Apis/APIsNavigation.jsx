@@ -2,8 +2,8 @@ import React from 'react';
 import APIsIcon from '@material-ui/icons/SettingsInputHdmi';
 import AlertsIcon from '@material-ui/icons/AddAlert';
 
-import PageNav from '../Base/container/navigation/PageNav';
-import NavItem from '../Base/container/navigation/NavItem';
+import PageNav from 'AppComponents/Base/container/navigation/PageNav';
+import NavItem from 'AppComponents/Base/container/navigation/NavItem';
 
 /**
  * Compose the Left side fixed navigation bar for APIs page (/publisher/apis)

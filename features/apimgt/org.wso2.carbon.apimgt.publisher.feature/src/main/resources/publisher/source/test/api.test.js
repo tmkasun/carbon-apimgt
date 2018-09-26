@@ -16,9 +16,15 @@
  * under the License.
  */
 
-import Api from '../src/app/data/api.js'
-import {before, describe, it} from "mocha"
-import {assert} from 'chai'
+import Api from 'AppData/api.js'
+import {
+    before,
+    describe,
+    it
+} from "mocha"
+import {
+    assert
+} from 'chai'
 import TestUtils from './utils.js'
 
 TestUtils.setupMockEnvironment();
@@ -62,8 +68,12 @@ describe('Api',
                             "endpoint": [{
                                 type: "production",
                                 inline: {
-                                    endpointConfig: JSON.stringify({serviceUrl: 'http://test.wso2.org/api/endpoint'}),
-                                    endpointSecurity: {enabled: false},
+                                    endpointConfig: JSON.stringify({
+                                        serviceUrl: 'http://test.wso2.org/api/endpoint'
+                                    }),
+                                    endpointSecurity: {
+                                        enabled: false
+                                    },
                                     type: "http",
                                     name: "testing_endpoint" + c_time,
                                     maxTps: 1000
@@ -146,8 +156,12 @@ describe('Api',
                                 let endpoint_created_time = Date.now();
                                 let endpointData = [{
                                     inline: {
-                                        endpointConfig: JSON.stringify({serviceUrl: 'http://test.wso2.org/api/endpoint'}),
-                                        endpointSecurity: {enabled: false},
+                                        endpointConfig: JSON.stringify({
+                                            serviceUrl: 'http://test.wso2.org/api/endpoint'
+                                        }),
+                                        endpointSecurity: {
+                                            enabled: false
+                                        },
                                         type: "http",
                                         name: "testing_endpoint" + endpoint_created_time,
                                         maxTps: 1000
@@ -168,5 +182,3 @@ describe('Api',
             });
     }
 );
-
-

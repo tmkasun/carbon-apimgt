@@ -12,7 +12,7 @@ import Chip from '@material-ui/core/Chip';
 import { Link } from 'react-router-dom';
 // import { FormattedMessage } from 'react-intl';
 
-import ImageGenerator from '../../Listing/components/ImageGenerator';
+import ImageGenerator from 'AppComponents/Apis/Listing/components/ImageGenerator';
 import DeleteApiButton from './DeleteApiButton';
 
 const styles = theme => ({

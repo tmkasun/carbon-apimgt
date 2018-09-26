@@ -22,7 +22,7 @@ import TextField from '@material-ui/core/TextField';
 import { ScopeValidation, resourceMethod, resourcePath } from 'AppData/ScopeValidation';
 import { FormattedMessage } from 'react-intl';
 import API from 'AppData/api';
-import Policies from '../../Details/LifeCycle/Policies';
+import Policies from 'AppComponents/Apis/Details/LifeCycle/Policies';
 
 /**
  * @export @inheritDoc
