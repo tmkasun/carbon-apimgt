@@ -24,6 +24,7 @@ import org.wso2.carbon.apimgt.api.APIManagementException;
 import org.wso2.carbon.apimgt.api.model.Comment;
 import org.wso2.carbon.apimgt.impl.APIConstants;
 import org.wso2.carbon.apimgt.impl.utils.APIRealmUtils;
+import org.wso2.carbon.apimgt.rest.api.store.v1.dto.AddCommentDTO;
 import org.wso2.carbon.apimgt.rest.api.store.v1.dto.CommentDTO;
 import org.wso2.carbon.apimgt.rest.api.store.v1.dto.CommentListDTO;
 import org.wso2.carbon.apimgt.rest.api.store.v1.dto.CommenterInfoDTO;
@@ -50,7 +51,51 @@ public class CommentMappingUtil {
         commentDTO.setContent(comment.getText());
         commentDTO.setCreatedBy(comment.getUser());
         commentDTO.setCreatedTime(comment.getCreatedTime().toString());
+        if (comment.getUpdatedTime()!=null){
+            commentDTO.setUpdatedTime(comment.getUpdatedTime().toString());
+        }
+        commentDTO.setUpdatedBy(comment.getUpdatedBy());
+        commentDTO.setCategory(comment.getCategory());
+        commentDTO.setParentCommentId(comment.getParentCommentID());
+        commentDTO.setEntryPoint(comment.getEntryPoint());
+        List<CommentDTO> replieslist = new ArrayList<CommentDTO>();
+        for (Comment reply : comment.getReplies()){
+            CommentDTO commentDTOOfReply = new CommentDTO();
+            commentDTOOfReply.setId(reply.getId());
+            commentDTOOfReply.setContent(reply.getText());
+            commentDTOOfReply.setCreatedBy(reply.getUser());
+            commentDTOOfReply.setCreatedTime(reply.getCreatedTime().toString());
+            if (reply.getUpdatedTime()!=null){
+                commentDTOOfReply.setUpdatedTime(reply.getUpdatedTime().toString());
+            }
+            commentDTOOfReply.setUpdatedBy(reply.getUpdatedBy());
+            commentDTOOfReply.setCategory(reply.getCategory());
+            commentDTOOfReply.setParentCommentId(reply.getParentCommentID());
+            commentDTOOfReply.setEntryPoint(reply.getEntryPoint());
+            replieslist.add(commentDTOOfReply);
+        }
+        CommentListDTO commentListDTO = new CommentListDTO();
+        commentListDTO.setList(replieslist);
+        commentDTO.setReplies(commentListDTO);
         return commentDTO;
+
+//        CommentDTO commentDTOreply1 = new CommentDTO();
+//        commentDTOreply1.setId("reply1id");
+//        commentDTOreply1.setContent("reply1Content");
+//
+//        CommentDTO commentDTOreply2 = new CommentDTO();
+//        commentDTOreply2.setId("reply2id");
+//        commentDTOreply2.setContent("reply2Content");
+//
+//        List<CommentDTO> replylist = new ArrayList<CommentDTO>();
+//
+//        replylist.add(commentDTOreply1);
+//        replylist.add(commentDTOreply2);
+//        CommentListDTO commentlistdto = new CommentListDTO();
+//        commentlistdto.setList(replylist);
+//
+//        commentDTO.setReplies(commentlistdto);
+//        return commentDTO;
     }
 
     /**
@@ -104,7 +149,25 @@ public class CommentMappingUtil {
         comment.setApiId(apiId);
         return comment;
     }
-
+//    /**
+//     * Converts a AddCommentDTO to a Comment object
+//     *
+//     * @param addCommentDTO AddCommentDTO body
+//     * @param parentCommentID Parent Comment ID
+//     * @param username username of the consumer
+//     * @param apiId    API ID
+//     * @return Comment object
+//     */
+//    public static Comment fromAddCommentDTOToComment(AddCommentDTO addCommentDTO, String parentCommentID, String username, String apiId) {
+//        Comment comment = new Comment();
+//        comment.setText(addCommentDTO.getContent());
+//        comment.setCategory(addCommentDTO.getCategory());
+//        comment.setParentCommentID(parentCommentID);
+//        comment.setEntryPoint("devPortal");
+//        comment.setUser(username);
+//        comment.setApiId(apiId);
+//        return comment;
+//    }
     /**
      * Wraps a List of Comments to a CommentListDTO
      *

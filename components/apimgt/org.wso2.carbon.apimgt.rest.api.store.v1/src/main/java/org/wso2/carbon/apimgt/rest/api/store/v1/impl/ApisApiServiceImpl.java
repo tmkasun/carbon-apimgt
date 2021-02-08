@@ -236,7 +236,7 @@ public class ApisApiServiceImpl implements ApisApiService {
     }
 
     @Override
-    public Response addCommentToAPI(String apiId, CommentDTO body, MessageContext messageContext) {
+    public Response addCommentToAPI(String apiId, AddCommentDTO addCommentDTO, String parentCommentID, MessageContext messageContext) {
         String username = RestApiCommonUtil.getLoggedInUsername();
         String requestedTenantDomain = RestApiCommonUtil.getLoggedInUserTenantDomain();
         try {
@@ -248,9 +248,16 @@ public class ApisApiServiceImpl implements ApisApiService {
             } else {
                 identifier = apiTypeWrapper.getApi().getId();
             }
-            Comment comment = CommentMappingUtil.fromDTOToComment(body, username, apiId);
+            Comment comment = new Comment();
+            comment.setText(addCommentDTO.getContent());
+            comment.setCategory(addCommentDTO.getCategory());
+            comment.setParentCommentID(parentCommentID);
+            comment.setEntryPoint("devPortal");
+            comment.setUser(username);
+            comment.setApiId(apiId);
+            //Comment comment = CommentMappingUtil.fromAddCommentDTOToComment(addCommentDTO, parentCommentID, username, apiId);
             String createdCommentId = apiConsumer.addComment(identifier, comment, username);
-            Comment createdComment = apiConsumer.getComment(identifier, createdCommentId);
+            Comment createdComment = apiConsumer.getComment(identifier, createdCommentId, 0, 0);
             CommentDTO commentDTO = CommentMappingUtil.fromCommentToDTO(createdComment);
 
             String uriString = RestApiConstants.RESOURCE_PATH_APIS + "/" + apiId +
@@ -301,8 +308,7 @@ public class ApisApiServiceImpl implements ApisApiService {
     }
 
     @Override
-    public Response getCommentOfAPI(String commentId, String apiId, String xWSO2Tenant, String ifNoneMatch,
-                                    Boolean includeCommenterInfo, MessageContext messageContext) {
+    public Response getCommentOfAPI(String commentId, String apiId, String xWSO2Tenant, String ifNoneMatch, Boolean includeCommenterInfo, Integer limit, Integer offset, MessageContext messageContext) {
         String requestedTenantDomain = RestApiUtil.getRequestedTenantDomain(xWSO2Tenant);
         try {
             APIConsumer apiConsumer = RestApiCommonUtil.getLoggedInUserConsumer();
@@ -314,7 +320,7 @@ public class ApisApiServiceImpl implements ApisApiService {
                 identifier = apiTypeWrapper.getApi().getId();
             }
 
-            Comment comment = apiConsumer.getComment(identifier, commentId);
+            Comment comment = apiConsumer.getComment(identifier, commentId, limit, offset);
 
             if (comment != null) {
                 CommentDTO commentDTO;
@@ -346,6 +352,16 @@ public class ApisApiServiceImpl implements ApisApiService {
             String errorMessage = "Error while retrieving comment content location : " + apiId;
             RestApiUtil.handleInternalServerError(errorMessage, e, log);
         }
+        return null;
+    }
+
+    @Override
+    public Response editCommentOfAPI(String commentId, String apiId, UpdateCommentDTO updateCommentDTO, MessageContext messageContext) throws APIManagementException{
+        return null;
+    }
+
+    @Override
+    public Response getRepliesOfComment(String commentId, String apiId, String xWSO2Tenant, Integer limit, Integer offset, String ifNoneMatch, Boolean includeCommenterInfo, MessageContext messageContext) throws APIManagementException{
         return null;
     }
 
