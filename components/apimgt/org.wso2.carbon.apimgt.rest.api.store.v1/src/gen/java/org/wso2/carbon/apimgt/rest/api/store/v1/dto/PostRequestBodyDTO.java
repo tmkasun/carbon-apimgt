@@ -18,7 +18,7 @@ import javax.validation.Valid;
 
 
 
-public class AddCommentDTO   {
+public class PostRequestBodyDTO   {
   
     private String content = null;
     private String category = null;
@@ -26,14 +26,15 @@ public class AddCommentDTO   {
   /**
    * Content of the comment 
    **/
-  public AddCommentDTO content(String content) {
+  public PostRequestBodyDTO content(String content) {
     this.content = content;
     return this;
   }
 
   
-  @ApiModelProperty(example = "This is a comment", value = "Content of the comment ")
+  @ApiModelProperty(example = "This is a comment", required = true, value = "Content of the comment ")
   @JsonProperty("content")
+  @NotNull
   public String getContent() {
     return content;
   }
@@ -44,7 +45,7 @@ public class AddCommentDTO   {
   /**
    * Category of the comment 
    **/
-  public AddCommentDTO category(String category) {
+  public PostRequestBodyDTO category(String category) {
     this.category = category;
     return this;
   }
@@ -68,9 +69,9 @@ public class AddCommentDTO   {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    AddCommentDTO addComment = (AddCommentDTO) o;
-    return Objects.equals(content, addComment.content) &&
-        Objects.equals(category, addComment.category);
+    PostRequestBodyDTO postRequestBody = (PostRequestBodyDTO) o;
+    return Objects.equals(content, postRequestBody.content) &&
+        Objects.equals(category, postRequestBody.category);
   }
 
   @Override
@@ -81,7 +82,7 @@ public class AddCommentDTO   {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class AddCommentDTO {\n");
+    sb.append("class PostRequestBodyDTO {\n");
     
     sb.append("    content: ").append(toIndentedString(content)).append("\n");
     sb.append("    category: ").append(toIndentedString(category)).append("\n");

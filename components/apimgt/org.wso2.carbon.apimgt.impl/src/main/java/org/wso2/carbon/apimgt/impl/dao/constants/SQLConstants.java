@@ -2221,42 +2221,101 @@ public class SQLConstants {
             "   AND ICA.ID = IAT.CONSUMER_KEY_ID";
 
     public static final String ADD_COMMENT_SQL =
-            " INSERT INTO AM_API_COMMENTS (COMMENT_ID,COMMENT_TEXT,CREATED_BY,CREATED_TIME,API_ID,PARENT_COMMENT_ID,ENTRY_POINT,CATEGORY)" +
+            " INSERT INTO " +
+                    "AM_API_COMMENTS " +
+                    "(COMMENT_ID," +
+                    "COMMENT_TEXT," +
+                    "CREATED_BY," +
+                    "CREATED_TIME," +
+                    "API_ID," +
+                    "PARENT_COMMENT_ID," +
+                    "ENTRY_POINT," +
+                    "CATEGORY)" +
             " VALUES (?,?,?,?,?,?,?,?)";
 
     public static final String GET_COMMENT_SQL =
-            " SELECT * " +
+            "SELECT " +
+                "AM_API_COMMENTS.COMMENT_ID, " +
+                "AM_API_COMMENTS.COMMENT_TEXT, " +
+                "AM_API_COMMENTS.CREATED_BY, " +
+                "AM_API_COMMENTS.CREATED_TIME, " +
+                "AM_API_COMMENTS.UPDATED_TIME, " +
+                "AM_API_COMMENTS.API_ID, " +
+                "AM_API_COMMENTS.PARENT_COMMENT_ID, " +
+                "AM_API_COMMENTS.ENTRY_POINT, " +
+                "AM_API_COMMENTS.CATEGORY " +
             "FROM " +
                 "AM_API_COMMENTS, " +
                 "AM_API API " +
             "WHERE " +
                 "API.API_PROVIDER = ? " +
-                    "AND " +
-                "API.API_NAME = ? " +
-                    "AND " +
-                "API.API_VERSION = ? " +
-                    "AND " +
-                "API.API_ID = AM_API_COMMENTS.API_ID " +
-                    "AND " +
+                "AND API.API_NAME = ? " +
+                "AND API.API_VERSION = ? " +
+                "AND API.API_ID = AM_API_COMMENTS.API_ID " +
+                "AND AM_API_COMMENTS.COMMENT_ID = ?";
+
+    public static final String GET_REPLIES_SQL =
+            "SELECT " +
+                "AM_API_COMMENTS.COMMENT_ID, " +
+                "AM_API_COMMENTS.COMMENT_TEXT, " +
+                "AM_API_COMMENTS.CREATED_BY, " +
+                "AM_API_COMMENTS.CREATED_TIME, " +
+                "AM_API_COMMENTS.UPDATED_TIME, " +
+                "AM_API_COMMENTS.API_ID, " +
+                "AM_API_COMMENTS.PARENT_COMMENT_ID, " +
+                "AM_API_COMMENTS.ENTRY_POINT, " +
+                "AM_API_COMMENTS.CATEGORY " +
+            "FROM " +
+                "AM_API_COMMENTS, " +
+                "AM_API API " +
+            "WHERE " +
+                "API.API_PROVIDER = ? " +
+                "AND API.API_NAME = ? " +
+                "AND API.API_VERSION  = ? " +
+                "AND API.API_ID = AM_API_COMMENTS.API_ID " +
+                "AND PARENT_COMMENT_ID = ?";
+
+    public static final String GET_ROOT_COMMENTS_SQL =
+            "SELECT " +
+                "AM_API_COMMENTS.COMMENT_ID, " +
+                "AM_API_COMMENTS.COMMENT_TEXT, " +
+                "AM_API_COMMENTS.CREATED_BY, " +
+                "AM_API_COMMENTS.CREATED_TIME, " +
+                "AM_API_COMMENTS.UPDATED_TIME, " +
+                "AM_API_COMMENTS.API_ID, " +
+                "AM_API_COMMENTS.PARENT_COMMENT_ID, " +
+                "AM_API_COMMENTS.ENTRY_POINT, " +
+                "AM_API_COMMENTS.CATEGORY " +
+            "FROM " +
+                "AM_API_COMMENTS, " +
+                "AM_API API " +
+            "WHERE " +
+                "API.API_PROVIDER = ? " +
+                "AND API.API_NAME = ? " +
+                "AND API.API_VERSION  = ? " +
+                "AND API.API_ID = AM_API_COMMENTS.API_ID " +
+                "AND PARENT_COMMENT_ID IS NULL";
+
+    public static final String EDIT_COMMENT =
+            "UPDATE " +
+                "AM_API_COMMENTS " +
+            "SET " +
+                "COMMENT_TEXT = ?, " +
+                "UPDATED_TIME = ?, " +
+                "CATEGORY = ? " +
+            "WHERE " +
+                "AM_API_COMMENTS.API_ID = ? " +
+                "AND " +
                 "AM_API_COMMENTS.COMMENT_ID = ?";
 
-    public static final String GET_REPLIES_SQL = "SELECT * FROM AM_API_COMMENTS WHERE PARENT_COMMENT_ID=?";
-
-    public static final String GET_COMMENTS_SQL =
-            " SELECT AM_API_COMMENTS.COMMENT_ID AS COMMENT_ID," +
-            "   AM_API_COMMENTS.COMMENT_TEXT AS COMMENT_TEXT," +
-            "   AM_API_COMMENTS.CREATED_BY AS CREATED_BY," +
-            "   AM_API_COMMENTS.CREATED_TIME AS CREATED_TIME " +
-            " FROM " +
-            "   AM_API_COMMENTS, " +
-            "   AM_API API " +
-            " WHERE " +
-            "   API.API_PROVIDER = ? " +
-            "   AND API.API_NAME = ? " +
-            "   AND API.API_VERSION  = ? " +
-            "   AND API.API_ID = AM_API_COMMENTS.API_ID";
-
-    public static final String DELETE_COMMENT_SQL = "DELETE FROM AM_API_COMMENTS WHERE AM_API_COMMENTS.COMMENT_ID = ?";
+    public static final String DELETE_COMMENT_SQL =
+            "DELETE " +
+            "FROM " +
+                "AM_API_COMMENTS " +
+            "WHERE " +
+                "AM_API_COMMENTS.API_ID = ? " +
+            "AND " +
+                "AM_API_COMMENTS.COMMENT_ID = ?";
 
     public static final String GET_API_CONTEXT_SQL =
             "SELECT CONTEXT FROM AM_API " + " WHERE CONTEXT= ?";
